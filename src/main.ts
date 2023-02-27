@@ -2,6 +2,8 @@ import {Client} from 'tmi.js'
 import {config} from 'dotenv'
 
 import {Logger} from './logger'
+import { help } from "./commands/help";
+import { getBearJoke } from "./commands/bearJokes";
 
 config()
 
@@ -15,7 +17,7 @@ async function main() {
     logger.log(`${bearEmoji} Bear bot started!`);
 
     const client = new Client({
-        options: {debug: true},
+        options: {debug: false},
         connection: {
             reconnect: true,
             secure: true,
@@ -26,15 +28,58 @@ async function main() {
         }
     });
 
+    // Connect to Twitch:
+    // ------------------
     await client.connect();
 
-    await client.join('Duke_Ferdinand');
-
+    // Setup listeners
+    // ---------------
     client.once('join', (channel, username, self) => {
         if (self) {
             logger.log(`${bearEmoji} Joined ${channel}!`);
         }
     });
+
+    client.on('message', async (channel, tags, message, self) => {
+        if (self) return;
+
+        // Chat commands:
+        // these should start with a ? to avoid confusion with technical commands
+
+        if (message.toLowerCase() === '?help') {
+            await client.say(channel, `${help()}`);
+        }
+
+        if (message.toLowerCase() === '?bearjoke') {
+            const joke = getBearJoke();
+
+            await client.say(channel, joke.question);
+
+            setTimeout(() => {
+                client.say(channel, joke.answer);
+            }, 3000);
+        }
+
+        if (message.toLowerCase() === '?socials') {
+            await client.say(channel, `See my twitter, bandcamp, and more: https://linktr.ee/duke_ferdinand`);
+        }
+
+        // More technical commands:
+        // these should start with a > to avoid confusion with chat commands
+
+        if (message.toLowerCase() === '>servertime') {
+            await client.say(channel, `The server time is ${new Date().toLocaleTimeString()}`);
+        }
+
+        if (message.toLowerCase() === '>whoami') {
+            await client.say(channel, `You are ${tags.username}, your user id is ${tags['user-id']}`);
+        }
+    })
+
+    // Join channel(s):
+    // ----------------
+
+    await client.join('Duke_Ferdinand');
 
 }
 
