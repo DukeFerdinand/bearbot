@@ -1,0 +1,8 @@
+{
+    "ext": "*",
+    "exec": "npx tsc && node dist/main.js",
+    "ignore": [
+        "node_modules",
+        "dist"
+    ]
+}
