@@ -4,6 +4,7 @@ import {config} from 'dotenv'
 import {Logger} from './logger'
 import { help } from "./commands/help";
 import { getBearJoke } from "./commands/bearJokes";
+import { heyBearbot } from "./commands/heyBearbot";
 
 config()
 
@@ -73,6 +74,19 @@ async function main() {
 
         if (message.toLowerCase() === '>whoami') {
             await client.say(channel, `You are ${tags.username}, your user id is ${tags['user-id']}`);
+        }
+
+        if (message.toLowerCase().startsWith('hey bear bot')) {
+            const query = message.replace('hey bear bot', '').trim();
+
+            if (query.length === 0) {
+                await client.say(channel, 'Usage: >heybearbot <your question for bearbot>');
+                return;
+            }
+
+            const response = await heyBearbot(query);
+
+            await client.say(channel, `${response}`);
         }
     })
 
