@@ -42,6 +42,8 @@ async function main() {
     });
 
     client.on('message', async (channel, tags, message, self) => {
+        logger.log(`@${tags.username} says: ${message}`);
+
         if (self) return;
 
         // Chat commands:
@@ -76,13 +78,20 @@ async function main() {
             await client.say(channel, `You are ${tags.username}, your user id is ${tags['user-id']}`);
         }
 
-        if (message.toLowerCase().startsWith('hey bear bot')) {
-            const query = message.replace('hey bear bot', '').trim();
+        if (message.toLowerCase().startsWith('hey bearbot') || message.includes(client.getUsername())) {
+            let query = message.replace('hey bearbot', '').trim();
 
             if (query.length === 0) {
                 await client.say(channel, 'Usage: >heybearbot <your question for bearbot>');
                 return;
             }
+
+            query = `
+            User: ${tags.username}
+            Moderator: ${tags.mod}
+            ---
+            ${query}
+            `
 
             const response = await heyBearbot(query);
 
